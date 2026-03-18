@@ -1,0 +1,17 @@
+cd C:\Users\user\Desktop\rasu-frontend
+npm start
+Once it starts, the two URLs are:
+WhoURLTeacherhttp://localhost:3000/loginStudenthttp://localhost:3000/join
+
+
+
+ANTHROPIC_API_KEY=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
+
+
+
+2K31QnosOb9Ot8Ddv
+
+service_o0ds7bv
+
+
+template_yf6gplj

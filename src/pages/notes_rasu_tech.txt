@@ -1,0 +1,37 @@
+rasu-quizz-production.up.railway.app
+
+
+Teacher:   http://localhost:3000/login
+Student: http://localhost:3000/join
+
+
+0f819793-bf46-4431-9278-e3696dc9ea8e
+
+
+
+https://rasu-quizz-production.up.railway.app
+
+
+$token = (Invoke-RestMethod -Uri "https://rasu-quizz-production-0e45.up.railway.app/api/v1/auth/login" -Method POST -ContentType "application/json" -Body '{"email":"sssuraparaj@gmail.com","password":"Teacher123!"}').data.accessToken
+
+Invoke-RestMethod -Uri "https://rasu-quizz-production-0e45.up.railway.app/api/v1/presentations" -Method POST -ContentType "application/json" -Headers @{Authorization="Bearer $token"} -Body '{"title":"My First Quiz","description":"Test presentation"}'
+
+
+Humchey sathio
+00:45:50 kalyani
+00:51:60 Jyothi
+00:58:26 Meena
+01:04:85 Aruna
+01:10:70 Varalakshmi
+01:16:82 Jayasudha
+01:22:76 wedding
+01:26:70 Humche sathio
+01:53.53 sun glasses
+01:59.85 games
+02:06.85 Humche sathio
+02:23:.80 Anantapur
+03:00:00 humchesatio end
+
+
+
+Hum Chey Sathio… Hum Chey Sath May…  Six friends… one crazy day! From Anantapur college days long ago… Back again to steal the wedding show! (Chorus) Hum Chey Sathio… Hum Chey Sath May… Where we go, fun finds its way! Hum Chey Sathio… Hum Chey Sath May… Laughing louder every day! (Friends Verse) Kalyani smiling like she owns the place, Devotional heart and caring grace. Jyothi working hard with confidence high, Workaholic brain but jokes flying by! Meena calm like a lecturer in class, But one joke from her… whole gang laughs! Aruna energy – no battery needed at all, Talking on any topic… she can lecture the hall! Vara Lakshmi boss of the gang we know, Creative queen and the reel king of the show! Jayasudha smiling watching all the fun, Thinking, “Did my daughter’s wedding become reunion number one?” (Fun Verse) Sunglasses on… colorful sarees bright, Photos and reels from morning till night. Games started… rules disappeared, Other guests watching like “What happened here?” (Final Chorus) Hum Chey Sathio… Hum Chey Sath May… From Anantapur memories we stay! Hum Chey Sathio… Hum Chey Sath May… Six friends… one legendary day! 

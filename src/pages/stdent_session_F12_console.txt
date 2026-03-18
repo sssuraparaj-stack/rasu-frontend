@@ -1,0 +1,59 @@
+Download the React DevTools for a better development experience: https://reactjs.org/link/react-devtools
+deprecations.ts:9 ⚠️ React Router Future Flag Warning: React Router will begin wrapping state updates in `React.startTransition` in v7. You can use the `v7_startTransition` future flag to opt-in early. For more information, see https://reactrouter.com/v6/upgrading/future#v7_starttransition.
+warnOnce @ deprecations.ts:9
+logDeprecation @ deprecations.ts:13
+logV6DeprecationWarnings @ deprecations.ts:26
+(anonymous) @ index.tsx:816
+commitHookEffectListMount @ react-dom.development.js:23189
+commitPassiveMountOnFiber @ react-dom.development.js:24965
+commitPassiveMountEffects_complete @ react-dom.development.js:24930
+commitPassiveMountEffects_begin @ react-dom.development.js:24917
+commitPassiveMountEffects @ react-dom.development.js:24905
+flushPassiveEffectsImpl @ react-dom.development.js:27078
+flushPassiveEffects @ react-dom.development.js:27023
+(anonymous) @ react-dom.development.js:26808
+workLoop @ scheduler.development.js:266
+flushWork @ scheduler.development.js:239
+performWorkUntilDeadline @ scheduler.development.js:533Understand this warning
+deprecations.ts:9 ⚠️ React Router Future Flag Warning: Relative route resolution within Splat routes is changing in v7. You can use the `v7_relativeSplatPath` future flag to opt-in early. For more information, see https://reactrouter.com/v6/upgrading/future#v7_relativesplatpath.
+warnOnce @ deprecations.ts:9
+logDeprecation @ deprecations.ts:13
+logV6DeprecationWarnings @ deprecations.ts:37
+(anonymous) @ index.tsx:816
+commitHookEffectListMount @ react-dom.development.js:23189
+commitPassiveMountOnFiber @ react-dom.development.js:24965
+commitPassiveMountEffects_complete @ react-dom.development.js:24930
+commitPassiveMountEffects_begin @ react-dom.development.js:24917
+commitPassiveMountEffects @ react-dom.development.js:24905
+flushPassiveEffectsImpl @ react-dom.development.js:27078
+flushPassiveEffects @ react-dom.development.js:27023
+(anonymous) @ react-dom.development.js:26808
+workLoop @ scheduler.development.js:266
+flushWork @ scheduler.development.js:239
+performWorkUntilDeadline @ scheduler.development.js:533Understand this warning
+StudentSession.js:27 WebSocket connection to 'wss://rasu-quizz-production-0e45.up.railway.app/socket.io/?EIO=4&transport=websocket' failed: WebSocket is closed before the connection is established.
+doClose @ websocket.js:81
+close @ transport.js:55
+_onClose @ socket.js:512
+close @ socket.js:448
+close @ socket.js:477
+onclose @ manager.js:305
+_close @ manager.js:283
+_destroy @ manager.js:251
+destroy @ socket.js:630
+disconnect @ socket.js:653
+(anonymous) @ StudentSession.js:27
+safelyCallDestroy @ react-dom.development.js:22971
+commitHookEffectListUnmount @ react-dom.development.js:23139
+invokePassiveEffectUnmountInDEV @ react-dom.development.js:25246
+invokeEffectsInDev @ react-dom.development.js:27390
+commitDoubleInvokeEffectsInDEV @ react-dom.development.js:27363
+flushPassiveEffectsImpl @ react-dom.development.js:27095
+flushPassiveEffects @ react-dom.development.js:27023
+commitRootImpl @ react-dom.development.js:26974
+commitRoot @ react-dom.development.js:26721
+performSyncWorkOnRoot @ react-dom.development.js:26156
+flushSyncCallbacks @ react-dom.development.js:12042
+(anonymous) @ react-dom.development.js:25690Understand this warning
+2StudentSession.js:50 SLIDE CHANGED (student): {"sessionId":"3174e761-29f1-4e7f-a54d-7121e592c289","slide":{"slideId":"af5514e1-12d7-40d7-8012-5389ff84cff8","slideIndex":1,"totalSlides":3,"type":"quiz","content":{"points":100,"options":[{"id":"a","text":"application","isCorrect":false},{"id":"b","text":"AI tool","isCorrect":false},{"id":"c","text":"C++ languag","isCorrect":false},{"id":"d","text":"programming language","isCorrect":true}],"question":"what is python","timeLimit":30,"allowMultiple":false},"timeLimit":30,"shownAt":1772987882000}}
+2StudentSession.js:50 SLIDE CHANGED (student): {"sessionId":"3174e761-29f1-4e7f-a54d-7121e592c289","slide":{"slideId":"c5e442cb-2c8d-4235-a4e8-cf42e24e380b","slideIndex":2,"totalSlides":3,"type":"quiz","content":{"points":100,"options":[{"id":"a","text":"20","isCorrect":true},{"id":"b","text":"50","isCorrect":false},{"id":"c","text":"25","isCorrect":false},{"id":"d","text":"10","isCorrect":false}],"question":"T20 match how many overs","timeLimit":30,"allowMultiple":false},"timeLimit":30,"shownAt":1772987905566}}
