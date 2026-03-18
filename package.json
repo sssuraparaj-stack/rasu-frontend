@@ -11,7 +11,7 @@
   },
   "scripts": {
     "start": "react-scripts start",
-    "build": "react-scripts build"
+    "build": "node node_modules/react-scripts/bin/react-scripts.js build"
   },
   "browserslist": {
     "production": [">0.2%", "not dead", "not op_mini all"],
