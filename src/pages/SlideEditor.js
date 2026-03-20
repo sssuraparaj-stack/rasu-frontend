@@ -253,6 +253,11 @@ ${jsonFormat}`,
             ? messages[0].content
             : messages[0].content.map(m => m.type === 'text' ? m.text : '[document content]').join('\n'))
         : '';
+      const geminiText = messages[0]?.content
+        ? (typeof messages[0].content === 'string'
+            ? messages[0].content
+            : messages[0].content.map(m => m.type === 'text' ? m.text : '[document content]').join('\n'))
+        : '';
       const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -263,7 +268,7 @@ ${jsonFormat}`,
       });
       const data = await response.json();
       if (data.error) throw new Error(data.error.message);
-      const text = data.candidates?.[0]?.content?.parts?.[0]?.text || '';
+      const text = data.candidates?.[0]?.content?.parts?.[0]?.text || '';[0]?.text || '';
       const clean = text.replace(/```json|```/g, '').trim();
       const questions = JSON.parse(clean);
       if (!Array.isArray(questions) || questions.length === 0) throw new Error('No questions returned');
