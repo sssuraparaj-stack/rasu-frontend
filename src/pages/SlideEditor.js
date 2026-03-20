@@ -247,23 +247,23 @@ ${jsonFormat}`,
         }];
       }
 
-      const response = await fetch('https://api.anthropic.com/v1/messages', {
+      // Build Gemini-compatible prompt from messages
+      const geminiText = messages[0]?.content
+        ? (typeof messages[0].content === 'string'
+            ? messages[0].content
+            : messages[0].content.map(m => m.type === 'text' ? m.text : '[document content]').join('\n'))
+        : '';
+      const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'x-api-key': apiKey,
-          'anthropic-version': '2023-06-01',
-          'anthropic-dangerous-direct-browser-access': 'true',
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          model: 'claude-haiku-4-5',
-          max_tokens: 4000,
-          messages,
+          contents: [{ parts: [{ text: geminiText }] }],
+          generationConfig: { temperature: 0.7, maxOutputTokens: 4000 },
         }),
       });
       const data = await response.json();
       if (data.error) throw new Error(data.error.message);
-      const text = data.content?.[0]?.text || '';
+      const text = data.candidates?.[0]?.content?.parts?.[0]?.text || '';
       const clean = text.replace(/```json|```/g, '').trim();
       const questions = JSON.parse(clean);
       if (!Array.isArray(questions) || questions.length === 0) throw new Error('No questions returned');
