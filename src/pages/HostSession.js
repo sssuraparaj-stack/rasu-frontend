@@ -20,6 +20,7 @@ export default function HostSession() {
   const [status, setStatus] = useState(state?.session?.status || 'waiting');
   const [showLeaderboard, setShowLeaderboard] = useState(false);
   const [showQR, setShowQR] = useState(false);
+  const [showQR, setShowQR] = useState(false);
   const socketRef = useRef(null);
   const timerRef = useRef(null);
   const [timeLeft, setTimeLeft] = useState(null);
