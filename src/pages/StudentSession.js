@@ -16,6 +16,8 @@ export default function StudentSession() {
   const [showLeaderboard, setShowLeaderboard] = useState(false);
   const [joinedStudents, setJoinedStudents] = useState([]);
   const [kicked, setKicked] = useState(false);
+  const [countdown, setCountdown] = useState(null); // 5,4,3,2,1 before question shows
+  const countdownRef = useRef(null);
   const [myAnswers, setMyAnswers] = useState([]); // { question, answer, isCorrect, points, type }
   const [showPersonalResults, setShowPersonalResults] = useState(false);
   const [correctOptionId, setCorrectOptionId] = useState(null);
@@ -64,6 +66,7 @@ export default function StudentSession() {
     return () => {
       socketRef.current?.disconnect();
       if (timerRef.current) clearInterval(timerRef.current);
+      if (countdownRef.current) clearInterval(countdownRef.current);
     };
   }, []);
 
@@ -194,6 +197,22 @@ export default function StudentSession() {
     socket.on('session:error', (data) => console.error('Socket error:', data));
   }
 
+  function startCountdown(onDone) {
+    setCountdown(5);
+    let count = 5;
+    if (countdownRef.current) clearInterval(countdownRef.current);
+    countdownRef.current = setInterval(() => {
+      count--;
+      if (count <= 0) {
+        clearInterval(countdownRef.current);
+        setCountdown(null);
+        onDone();
+      } else {
+        setCountdown(count);
+      }
+    }, 1000);
+  }
+
   function submitWordCloud() {
     if (submitted || !currentSlide) return;
     const words = wordInputs.map(w => w.trim()).filter(Boolean);
@@ -312,7 +331,28 @@ export default function StudentSession() {
         )}
 
         {/* ACTIVE - no slide yet */}
-        {status === 'active' && !currentSlide && (
+        {countdown !== null && (
+          <div style={{
+            display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
+            height: '60vh', gap: 16,
+          }}>
+            <div style={{ fontSize: 12, fontWeight: 700, letterSpacing: 3, color: 'var(--muted)', textTransform: 'uppercase' }}>
+              Get Ready!
+            </div>
+            <div style={{
+              fontFamily: 'var(--font-head)', fontSize: 96, fontWeight: 900,
+              color: countdown <= 2 ? 'var(--red)' : countdown <= 3 ? '#facc15' : 'var(--accent)',
+              lineHeight: 1,
+              animation: 'popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275)',
+              key: countdown,
+            }}>
+              {countdown}
+            </div>
+            <div style={{ fontSize: 14, color: 'var(--muted)' }}>Question coming up...</div>
+          </div>
+        )}
+
+        {countdown === null && status === 'active' && !currentSlide && (
           <div className="waiting-screen">
             <div className="waiting-icon">📡</div>
             <div className="waiting-title">Get ready!</div>
@@ -365,6 +405,9 @@ export default function StudentSession() {
                 <img src={currentSlide.content.mediaUrl} alt="Question" className="slide-image" />
               </div>
             )}
+            <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: 2, color: 'var(--accent)', textTransform: 'uppercase', marginBottom: 8 }}>
+              Question {(currentSlide.slideIndex ?? 0) + 1} of {currentSlide.totalSlides ?? '?'}
+            </div>
             <div className="question-text">
               {currentSlide.content?.question || currentSlide.title}
             </div>

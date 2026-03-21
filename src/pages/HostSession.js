@@ -116,7 +116,7 @@ export default function HostSession() {
     });
 
     // Track last leaderboard scores for per-question diff
-    const lastLbScores = { current: {}, lastSlideIndex: -1 };
+    const lastLbScores = { current: {}, lastSlideIndex: -1, suppressNext: false };
 
     socket.on('session:leaderboard', (data) => {
       const lb = data?.entries || data?.leaderboard || [];
@@ -151,8 +151,11 @@ export default function HostSession() {
 
       setSlideLeaderboard(perQuestion);
       setLeaderboard(lb);
-      setShowLeaderboard(true);
-      setShowOverall(false);
+      if (!lastLbScores.suppressNext) {
+        setShowLeaderboard(true);
+        setShowOverall(false);
+      }
+      lastLbScores.suppressNext = false;
       setParticipants(prev => prev.map(p => {
         const entry = lb.find(e => e.participantId === p.id);
         return entry ? { ...p, score: entry.score } : p;
@@ -523,8 +526,8 @@ export default function HostSession() {
               timerExpired && !showLeaderboard ? (
                 <button className="btn btn-primary btn-sm" style={{ minWidth: 100 }}
                   onClick={() => {
-                    // Manually trigger leaderboard for last slide
-                    socketRef.current?.emit('change_slide', { sessionId, direction: slideIdx });
+                    setShowLeaderboard(true);
+                    setShowOverall(false);
                   }}>
                   See Results →
                 </button>
