@@ -109,6 +109,7 @@ export default function HostSession() {
     });
 
     socket.on('session:leaderboard', (data) => {
+      console.log('LEADERBOARD EVENT:', JSON.stringify(data).slice(0, 300));
       const lb = data?.entries || data?.leaderboard || [];
       if (lb.length) {
         // Use functional update to get previous leaderboard for diff
