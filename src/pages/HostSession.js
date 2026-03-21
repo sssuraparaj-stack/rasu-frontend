@@ -111,18 +111,20 @@ export default function HostSession() {
     socket.on('session:leaderboard', (data) => {
       const lb = data?.entries || data?.leaderboard || [];
       if (lb.length) {
-        // Calculate per-question points by diffing with previous scores
-        setLeaderboard(prev => {
+        // Use functional update to get previous leaderboard for diff
+        setLeaderboard(prevLb => {
           const perQuestion = lb.map(entry => {
-            const prevEntry = prev.find(p => p.participantId === entry.participantId);
-            const pointsThisQuestion = prevEntry ? entry.score - prevEntry.score : entry.score;
+            const prevEntry = prevLb.find(p => p.participantId === entry.participantId);
+            const pointsThisQuestion = prevEntry !== undefined
+              ? Math.max(0, entry.score - prevEntry.score)
+              : entry.score;
             return { ...entry, pointsThisQuestion };
           }).sort((a, b) => b.pointsThisQuestion - a.pointsThisQuestion);
           setSlideLeaderboard(perQuestion);
+          setShowLeaderboard(true);
+          setShowOverall(false);
           return lb;
         });
-        setShowLeaderboard(true);
-        setShowOverall(false);
         setParticipants(prev => prev.map(p => {
           const entry = lb.find(e => e.participantId === p.id);
           return entry ? { ...p, score: entry.score } : p;
