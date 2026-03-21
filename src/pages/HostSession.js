@@ -20,6 +20,7 @@ export default function HostSession() {
   const [status, setStatus] = useState(state?.session?.status || 'waiting');
   const [showLeaderboard, setShowLeaderboard] = useState(false);
   const [showOverall, setShowOverall] = useState(false);
+  const [closedSlideIdx, setClosedSlideIdx] = useState(0); // slide index the leaderboard is for
   const [slideLeaderboard, setSlideLeaderboard] = useState([]); // per-question scores
   const [prevLeaderboard, setPrevLeaderboard] = useState([]); // scores before this question
   const [showQR, setShowQR] = useState(false);
@@ -129,6 +130,7 @@ export default function HostSession() {
         return;
       }
       lastLbScores.lastSlideIndex = slideIndex;
+      setClosedSlideIdx(slideIndex + 1); // 1-based for display
 
       // Calculate per-question points using stored previous scores
       const perQuestion = lb.map(entry => {
@@ -404,7 +406,7 @@ export default function HostSession() {
                 <>
                   {/* Per-question winner */}
                   <div style={{ fontFamily: 'var(--font-head)', fontSize: 18, fontWeight: 800, marginBottom: 4, color: 'var(--accent)' }}>
-                    ⚡ Question {slideIdx + 1} Results
+                    ⚡ Question {closedSlideIdx} Results
                   </div>
                   <div style={{ fontSize: 12, color: 'var(--muted)', marginBottom: 16 }}>Points earned this question</div>
                   {slideLeaderboard.slice(0, 5).map((p, i) => (
