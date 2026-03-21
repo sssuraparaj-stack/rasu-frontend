@@ -95,6 +95,7 @@ export default function HostSession() {
       const snap = data.slide || data.snapshot || data;
       setCurrentSlide(snap);
       setShowLeaderboard(false);
+      setShowOverall(false);
       setTimerExpired(false);
       startTimer(snap);
     });
@@ -176,6 +177,8 @@ export default function HostSession() {
 
   function changeSlide(direction) {
     setShowLeaderboard(false);
+    setShowOverall(false);
+    setTimerExpired(false);
     socketRef.current?.emit('change_slide', { sessionId, direction });
   }
 
@@ -535,7 +538,7 @@ export default function HostSession() {
                 </button>
               ) : timerExpired ? (
                 <button className="btn btn-primary btn-sm" style={{ minWidth: 100 }}
-                  onClick={() => { setShowLeaderboard(true); setShowOverall(false); }}>
+                  onClick={() => fetchLeaderboard()}>
                   See Results →
                 </button>
               ) : (
