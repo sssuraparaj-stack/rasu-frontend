@@ -1,4 +1,4 @@
-Fimport React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useParams, useLocation, useNavigate } from 'react-router-dom';
 import { io } from 'socket.io-client';
 import { API, WS } from '../App';
@@ -19,6 +19,7 @@ export default function HostSession() {
   const [leaderboard, setLeaderboard] = useState([]);
   const [status, setStatus] = useState(state?.session?.status || 'waiting');
   const [showLeaderboard, setShowLeaderboard] = useState(false);
+  const [showQR, setShowQR] = useState(false);
   const socketRef = useRef(null);
   const timerRef = useRef(null);
   const [timeLeft, setTimeLeft] = useState(null);
@@ -497,6 +498,32 @@ export default function HostSession() {
             <div style={{ background: 'white', padding: 16, borderRadius: 12, display: 'inline-block', marginBottom: 16 }}>
               <img
                 src={`https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(`https://live.rasutechbridgeacademy.com/join?code=${session.joinCode}`)}`}
+                alt="QR Code"
+                style={{ width: 200, height: 200, display: 'block' }}
+              />
+            </div>
+            <div style={{ fontFamily: 'var(--font-head)', fontSize: 28, fontWeight: 900, letterSpacing: 4, color: 'var(--accent)', marginBottom: 8 }}>
+              {session.joinCode}
+            </div>
+            <div style={{ fontSize: 12, color: 'var(--muted)', marginBottom: 20 }}>
+              live.rasutechbridgeacademy.com/join
+            </div>
+            <button className="btn btn-ghost" onClick={() => setShowQR(false)}>Close</button>
+          </div>
+        </div>
+      )}
+
+      {/* QR Code Modal */}
+      {showQR && session?.joinCode && (
+        <div className="modal-overlay" onClick={() => setShowQR(false)}>
+          <div className="modal" onClick={e => e.stopPropagation()} style={{ maxWidth: 360, textAlign: 'center' }}>
+            <div className="modal-title">📱 Scan to Join</div>
+            <div style={{ fontSize: 13, color: 'var(--muted)', marginBottom: 16 }}>
+              Students scan this QR code to join the session
+            </div>
+            <div style={{ background: 'white', padding: 16, borderRadius: 12, display: 'inline-block', marginBottom: 16 }}>
+              <img
+                src={`https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent('https://live.rasutechbridgeacademy.com/join?code=' + session.joinCode)}`}
                 alt="QR Code"
                 style={{ width: 200, height: 200, display: 'block' }}
               />
