@@ -257,7 +257,7 @@ export default function StudentSession() {
         </div>
       </header>
 
-      <div className="student-content">
+      <div className="student-content" style={{ WebkitOverflowScrolling: 'touch' }}>
 
         {/* WAITING */}
         {kicked && (
