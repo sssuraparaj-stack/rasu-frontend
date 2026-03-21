@@ -81,7 +81,8 @@ export default function HostSession() {
     socket.on('session:started', (data) => {
       setStatus('active');
       setShowLeaderboard(false);
-      if (data?.firstSlide) { setCurrentSlide(data.firstSlide); startTimer(data.firstSlide); }
+      const slide = data?.firstSlide || data?.slide || data?.currentSlide;
+      if (slide) { setCurrentSlide(slide); startTimer(slide); }
     });
 
     socket.on('session:slide_changed', (data) => {
@@ -266,7 +267,10 @@ export default function HostSession() {
           )}
 
           {status === 'active' && !slideData && (
-            <div style={{ textAlign: 'center', color: 'var(--muted)' }}>Starting...</div>
+            <div style={{ textAlign: 'center', color: 'var(--muted)', padding: 40 }}>
+              <div className="spinner" style={{ margin: '0 auto 16px' }} />
+              <div>Starting session...</div>
+            </div>
           )}
 
           {status === 'active' && slideData && !showLeaderboard && (
