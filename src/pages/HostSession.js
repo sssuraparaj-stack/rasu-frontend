@@ -313,8 +313,8 @@ export default function HostSession() {
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
                 <div className="slide-question" style={{ margin: 0 }}>{slideData.content?.question}</div>
                 {timerExpired && !showLeaderboard && (
-                  <div style={{ textAlign: 'center', padding: '12px 16px', marginBottom: 12, background: 'rgba(255,59,92,0.1)', border: '1px solid var(--red)', borderRadius: 10, fontSize: 14, fontWeight: 700, color: 'var(--red)' }}>
-                    ⏰ Time's up! Click Next → to see results
+                  <div style={{ textAlign: 'center', padding: '10px 16px', marginBottom: 12, background: 'rgba(255,59,92,0.1)', border: '1px solid var(--red)', borderRadius: 10, fontSize: 13, fontWeight: 700, color: 'var(--red)' }}>
+                    ⏰ Time's up!
                   </div>
                 )}
                 {timeLeft !== null && (
@@ -537,12 +537,23 @@ export default function HostSession() {
                 </button>
               )
             ) : (
-              <button
-                className="btn btn-ghost btn-sm"
-                onClick={() => changeSlide('next')}
-              >
-                Next →
-              </button>
+              // Two-step Next: first shows leaderboard, second advances slide
+              showLeaderboard ? (
+                <button className="btn btn-primary btn-sm" style={{ minWidth: 100 }}
+                  onClick={() => changeSlide('next')}>
+                  Next Question →
+                </button>
+              ) : timerExpired ? (
+                <button className="btn btn-primary btn-sm" style={{ minWidth: 100 }}
+                  onClick={() => { setShowLeaderboard(true); setShowOverall(false); }}>
+                  See Results →
+                </button>
+              ) : (
+                <button className="btn btn-ghost btn-sm"
+                  onClick={() => changeSlide('next')}>
+                  Next →
+                </button>
+              )
             )}
           </div>
         )}
