@@ -156,6 +156,7 @@ export default function StudentSession() {
     });
 
     socket.on('session:slide_changed', (data) => {
+      console.log('STUDENT: slide_changed received', data?.slide?.slideIndex);
       const snap = data.slide || data.snapshot || data;
       justChangedSlide.current = true;
       setTimeout(() => { justChangedSlide.current = false; }, 1500);
