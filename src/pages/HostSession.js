@@ -19,6 +19,9 @@ export default function HostSession() {
   const [leaderboard, setLeaderboard] = useState([]);
   const [status, setStatus] = useState(state?.session?.status || 'waiting');
   const [showLeaderboard, setShowLeaderboard] = useState(false);
+  const [showOverall, setShowOverall] = useState(false);
+  const [slideLeaderboard, setSlideLeaderboard] = useState([]); // per-question scores
+  const [prevLeaderboard, setPrevLeaderboard] = useState([]); // scores before this question
   const [showQR, setShowQR] = useState(false);
   const socketRef = useRef(null);
   const timerRef = useRef(null);
@@ -106,14 +109,25 @@ export default function HostSession() {
     });
 
     socket.on('session:leaderboard', (data) => {
-      // Just update scores silently — don't interrupt the question display
       const lb = data?.entries || data?.leaderboard || [];
-      if (lb.length) setLeaderboard(lb);
-      // Update participant scores from leaderboard
-      setParticipants(prev => prev.map(p => {
-        const entry = lb.find(e => e.participantId === p.id);
-        return entry ? { ...p, score: entry.score } : p;
-      }));
+      if (lb.length) {
+        // Calculate per-question points by diffing with previous scores
+        setLeaderboard(prev => {
+          const perQuestion = lb.map(entry => {
+            const prevEntry = prev.find(p => p.participantId === entry.participantId);
+            const pointsThisQuestion = prevEntry ? entry.score - prevEntry.score : entry.score;
+            return { ...entry, pointsThisQuestion };
+          }).sort((a, b) => b.pointsThisQuestion - a.pointsThisQuestion);
+          setSlideLeaderboard(perQuestion);
+          return lb;
+        });
+        setShowLeaderboard(true);
+        setShowOverall(false);
+        setParticipants(prev => prev.map(p => {
+          const entry = lb.find(e => e.participantId === p.id);
+          return entry ? { ...p, score: entry.score } : p;
+        }));
+      }
     });
 
     socket.on('session:ended', (data) => {
@@ -361,18 +375,63 @@ export default function HostSession() {
           {/* Mid-slide leaderboard */}
           {status === 'active' && showLeaderboard && (
             <div>
-              <div style={{ fontFamily: 'var(--font-head)', fontSize: 20, fontWeight: 800, marginBottom: 16 }}>
-                📊 After Slide {slideIdx + 1}
-              </div>
-              {leaderboard.slice(0, 5).map((p, i) => (
-                <div key={p.participantId || i} className="participant-item" style={{ marginBottom: 8, padding: '10px 14px', background: 'rgba(255,255,255,0.03)', borderRadius: 10 }}>
-                  <span style={{ color: i < 3 ? 'var(--accent)' : 'var(--muted)', fontWeight: 700, width: 28, fontSize: 14 }}>
-                    {i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : `#${i+1}`}
-                  </span>
-                  <span className="participant-name">{p.nickname}</span>
-                  <span className="participant-score">{p.score}</span>
-                </div>
-              ))}
+              {!showOverall ? (
+                <>
+                  {/* Per-question winner */}
+                  <div style={{ fontFamily: 'var(--font-head)', fontSize: 18, fontWeight: 800, marginBottom: 4, color: 'var(--accent)' }}>
+                    ⚡ Question {slideIdx + 1} Results
+                  </div>
+                  <div style={{ fontSize: 12, color: 'var(--muted)', marginBottom: 16 }}>Points earned this question</div>
+                  {slideLeaderboard.slice(0, 5).map((p, i) => (
+                    <div key={p.participantId || i} style={{
+                      display: 'flex', alignItems: 'center', gap: 10, marginBottom: 8,
+                      padding: '10px 14px', borderRadius: 10,
+                      background: i === 0 ? 'rgba(250,204,21,0.08)' : 'rgba(255,255,255,0.03)',
+                      border: `1px solid ${i === 0 ? 'rgba(250,204,21,0.25)' : 'var(--border)'}`,
+                    }}>
+                      <span style={{ fontSize: 18, width: 28 }}>
+                        {i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : `#${i+1}`}
+                      </span>
+                      <span style={{ flex: 1, fontWeight: 700, fontSize: 14 }}>{p.nickname}</span>
+                      <span style={{ fontFamily: 'var(--font-head)', fontWeight: 900, color: p.pointsThisQuestion > 0 ? 'var(--green)' : 'var(--muted)', fontSize: 16 }}>
+                        {p.pointsThisQuestion > 0 ? `+${p.pointsThisQuestion}` : '0'}
+                      </span>
+                    </div>
+                  ))}
+                  <button className="btn btn-ghost btn-sm" style={{ width: '100%', marginTop: 12 }}
+                    onClick={() => setShowOverall(true)}>
+                    📊 Show Overall Rankings →
+                  </button>
+                </>
+              ) : (
+                <>
+                  {/* Overall leaderboard */}
+                  <div style={{ fontFamily: 'var(--font-head)', fontSize: 18, fontWeight: 800, marginBottom: 4 }}>
+                    🏆 Overall Rankings
+                  </div>
+                  <div style={{ fontSize: 12, color: 'var(--muted)', marginBottom: 16 }}>Cumulative scores</div>
+                  {leaderboard.slice(0, 5).map((p, i) => (
+                    <div key={p.participantId || i} style={{
+                      display: 'flex', alignItems: 'center', gap: 10, marginBottom: 8,
+                      padding: '10px 14px', borderRadius: 10,
+                      background: i === 0 ? 'rgba(250,204,21,0.08)' : 'rgba(255,255,255,0.03)',
+                      border: `1px solid ${i === 0 ? 'rgba(250,204,21,0.25)' : 'var(--border)'}`,
+                    }}>
+                      <span style={{ fontSize: 18, width: 28 }}>
+                        {i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : `#${i+1}`}
+                      </span>
+                      <span style={{ flex: 1, fontWeight: 700, fontSize: 14 }}>{p.nickname}</span>
+                      <span style={{ fontFamily: 'var(--font-head)', fontWeight: 900, color: 'var(--accent)', fontSize: 16 }}>
+                        {p.score}
+                      </span>
+                    </div>
+                  ))}
+                  <button className="btn btn-ghost btn-sm" style={{ width: '100%', marginTop: 12 }}
+                    onClick={() => setShowOverall(false)}>
+                    ← Back to Question Results
+                  </button>
+                </>
+              )}
             </div>
           )}
 
