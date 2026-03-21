@@ -165,8 +165,8 @@ export default function HostSession() {
             </div>
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-            <div className="join-code-box">
-              <div className="join-code-label">Join Code</div>
+            <div className="join-code-box" style={{ cursor: 'pointer' }} onClick={() => setShowQR(true)} title="Click to show QR code">
+              <div className="join-code-label">Join Code · 📱 QR</div>
               <div className="join-code-value">{session?.joinCode || '------'}</div>
             </div>
             {status === 'waiting' && (
@@ -485,6 +485,32 @@ export default function HostSession() {
           </button>
         </div>
       </aside>
+
+      {/* QR Code Modal */}
+      {showQR && session?.joinCode && (
+        <div className="modal-overlay" onClick={() => setShowQR(false)}>
+          <div className="modal" onClick={e => e.stopPropagation()} style={{ maxWidth: 360, textAlign: 'center' }}>
+            <div className="modal-title">📱 Scan to Join</div>
+            <div style={{ fontSize: 13, color: 'var(--muted)', marginBottom: 16 }}>
+              Students scan this QR code to join the session
+            </div>
+            <div style={{ background: 'white', padding: 16, borderRadius: 12, display: 'inline-block', marginBottom: 16 }}>
+              <img
+                src={`https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(`https://live.rasutechbridgeacademy.com/join?code=${session.joinCode}`)}`}
+                alt="QR Code"
+                style={{ width: 200, height: 200, display: 'block' }}
+              />
+            </div>
+            <div style={{ fontFamily: 'var(--font-head)', fontSize: 28, fontWeight: 900, letterSpacing: 4, color: 'var(--accent)', marginBottom: 8 }}>
+              {session.joinCode}
+            </div>
+            <div style={{ fontSize: 12, color: 'var(--muted)', marginBottom: 20 }}>
+              live.rasutechbridgeacademy.com/join
+            </div>
+            <button className="btn btn-ghost" onClick={() => setShowQR(false)}>Close</button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

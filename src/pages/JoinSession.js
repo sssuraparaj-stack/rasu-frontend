@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { API } from '../App';
 
@@ -10,6 +10,22 @@ export default function JoinSession() {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const urlCode = params.get('code');
+    if (urlCode) {
+      setCode(urlCode.toUpperCase());
+      // Auto-lookup the code
+      setTimeout(() => {
+        fetch(`${API}/sessions/code/${urlCode.toUpperCase()}`)
+          .then(r => r.json())
+          .then(data => {
+            if (data.data) { setSessionData(data.data); setStep('name'); }
+          }).catch(() => {});
+      }, 300);
+    }
+  }, []);
 
   async function lookupCode(e) {
     e.preventDefault();
