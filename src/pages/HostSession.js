@@ -108,29 +108,33 @@ export default function HostSession() {
       }
     });
 
+    // Track last leaderboard scores for per-question diff
+    const lastLbScores = { current: {} };
+
     socket.on('session:leaderboard', (data) => {
-      console.log('LEADERBOARD EVENT:', JSON.stringify(data).slice(0, 300));
       const lb = data?.entries || data?.leaderboard || [];
-      if (lb.length) {
-        // Use functional update to get previous leaderboard for diff
-        setLeaderboard(prevLb => {
-          const perQuestion = lb.map(entry => {
-            const prevEntry = prevLb.find(p => p.participantId === entry.participantId);
-            const pointsThisQuestion = prevEntry !== undefined
-              ? Math.max(0, entry.score - prevEntry.score)
-              : entry.score;
-            return { ...entry, pointsThisQuestion };
-          }).sort((a, b) => b.pointsThisQuestion - a.pointsThisQuestion);
-          setSlideLeaderboard(perQuestion);
-          setShowLeaderboard(true);
-          setShowOverall(false);
-          return lb;
-        });
-        setParticipants(prev => prev.map(p => {
-          const entry = lb.find(e => e.participantId === p.id);
-          return entry ? { ...p, score: entry.score } : p;
-        }));
-      }
+      if (!lb.length) return;
+
+      // Calculate per-question points using stored previous scores
+      const perQuestion = lb.map(entry => {
+        const prevScore = lastLbScores.current[entry.participantId] ?? 0;
+        const pointsThisQuestion = Math.max(0, entry.score - prevScore);
+        return { ...entry, pointsThisQuestion };
+      }).sort((a, b) => b.pointsThisQuestion - a.pointsThisQuestion);
+
+      // Store current scores as "previous" for next question
+      const newScores = {};
+      lb.forEach(e => { newScores[e.participantId] = e.score; });
+      lastLbScores.current = newScores;
+
+      setSlideLeaderboard(perQuestion);
+      setLeaderboard(lb);
+      setShowLeaderboard(true);
+      setShowOverall(false);
+      setParticipants(prev => prev.map(p => {
+        const entry = lb.find(e => e.participantId === p.id);
+        return entry ? { ...p, score: entry.score } : p;
+      }));
     });
 
     socket.on('session:ended', (data) => {
