@@ -109,11 +109,25 @@ export default function HostSession() {
     });
 
     // Track last leaderboard scores for per-question diff
-    const lastLbScores = { current: {} };
+    const lastLbScores = { current: {}, lastSlideIndex: -1 };
 
     socket.on('session:leaderboard', (data) => {
       const lb = data?.entries || data?.leaderboard || [];
       if (!lb.length) return;
+
+      const slideIndex = data?.slideIndex ?? -1;
+
+      // Ignore duplicate events for same slide
+      if (slideIndex === lastLbScores.lastSlideIndex) {
+        // Still update leaderboard silently
+        setLeaderboard(lb);
+        setParticipants(prev => prev.map(p => {
+          const entry = lb.find(e => e.participantId === p.id);
+          return entry ? { ...p, score: entry.score } : p;
+        }));
+        return;
+      }
+      lastLbScores.lastSlideIndex = slideIndex;
 
       // Calculate per-question points using stored previous scores
       const perQuestion = lb.map(entry => {
