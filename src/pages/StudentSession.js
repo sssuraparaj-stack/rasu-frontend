@@ -146,17 +146,21 @@ export default function StudentSession() {
       setStatus('active');
       setShowLeaderboard(false);
       if (data?.firstSlide) {
-        setCurrentSlide(data.firstSlide);
-        startTimer(data.firstSlide);
+        const snap = data.firstSlide;
+        setCurrentSlide(null);
+        startCountdown(() => {
+          setCurrentSlide(snap);
+          startTimer(snap);
+        });
       }
     });
 
     socket.on('session:slide_changed', (data) => {
       const snap = data.slide || data.snapshot || data;
-      slideStartTime.current = Date.now();
       justChangedSlide.current = true;
       setTimeout(() => { justChangedSlide.current = false; }, 1500);
-      setCurrentSlide(snap);
+      // Reset all answer state
+      setCurrentSlide(null);
       setSelectedAnswer(null);
       setSubmitted(false);
       setResult(null);
@@ -164,7 +168,14 @@ export default function StudentSession() {
       setShowLeaderboard(false);
       setTextAnswer('');
       setWordInputs(['']);
-      startTimer(snap);
+      if (timerRef.current) clearInterval(timerRef.current);
+      setTimeLeft(null);
+      // Start countdown then show question
+      startCountdown(() => {
+        slideStartTime.current = Date.now();
+        setCurrentSlide(snap);
+        startTimer(snap);
+      });
     });
 
     socket.on('session:response_received', (data) => {
