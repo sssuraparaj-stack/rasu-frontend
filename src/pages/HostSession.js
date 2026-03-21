@@ -19,6 +19,7 @@ export default function HostSession() {
   const [leaderboard, setLeaderboard] = useState([]);
   const [status, setStatus] = useState(state?.session?.status || 'waiting');
   const [showLeaderboard, setShowLeaderboard] = useState(false);
+  const [timerExpired, setTimerExpired] = useState(false);
   const [showOverall, setShowOverall] = useState(false);
   const [closedSlideIdx, setClosedSlideIdx] = useState(0);
   const [timerExpired, setTimerExpired] = useState(false); // slide index the leaderboard is for
@@ -179,6 +180,8 @@ export default function HostSession() {
     setShowLeaderboard(false);
     setShowOverall(false);
     setTimerExpired(false);
+    setShowLeaderboard(timerExpired && !showLeaderboard);
+    if (timerExpired && !showLeaderboard) return;
     socketRef.current?.emit('change_slide', { sessionId, direction });
   }
 
@@ -543,8 +546,9 @@ export default function HostSession() {
                 </button>
               ) : (
                 <button className="btn btn-ghost btn-sm"
-                  onClick={() => changeSlide('next')}>
-                  Next →
+                 onClick={() => changeSlide('next')}
+            >
+              {showLeaderboard ? 'Next Question →' : timerExpired ? 'See Results →' : 'Next →'}
                 </button>
               )
             )}
