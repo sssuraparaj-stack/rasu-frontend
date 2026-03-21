@@ -219,7 +219,14 @@ export default function HostSession() {
               </button>
             )}
             {status === 'active' && (
-              <button className="btn btn-danger" onClick={endSession}>■ End</button>
+              showLeaderboard && slideIdx >= totalSlides - 1 ? (
+                <button className="btn btn-primary" onClick={endSession}
+                  style={{ background: 'linear-gradient(135deg, #7c3aed, #a78bfa)', borderColor: 'transparent' }}>
+                  🏁 End & Show Final
+                </button>
+              ) : (
+                <button className="btn btn-danger" onClick={endSession}>■ End</button>
+              )
             )}
           </div>
         </div>
@@ -511,14 +518,29 @@ export default function HostSession() {
               ))}
             </div>
 
-            <button
-              className="btn btn-ghost btn-sm"
-              disabled={!currentSlide || totalSlides === 0 || slideIdx >= totalSlides - 1}
-              onClick={() => changeSlide('next')}
-              style={slideIdx >= totalSlides - 1 ? { opacity: 0.3, cursor: 'not-allowed' } : {}}
-            >
-              Next →
-            </button>
+            {slideIdx >= totalSlides - 1 ? (
+              // Last slide — show "See Results" when timer expired, otherwise disabled Next
+              timerExpired && !showLeaderboard ? (
+                <button className="btn btn-primary btn-sm" style={{ minWidth: 100 }}
+                  onClick={() => {
+                    // Manually trigger leaderboard for last slide
+                    socketRef.current?.emit('change_slide', { sessionId, direction: slideIdx });
+                  }}>
+                  See Results →
+                </button>
+              ) : (
+                <button className="btn btn-ghost btn-sm" disabled style={{ opacity: 0.3, cursor: 'not-allowed' }}>
+                  Next →
+                </button>
+              )
+            ) : (
+              <button
+                className="btn btn-ghost btn-sm"
+                onClick={() => changeSlide('next')}
+              >
+                Next →
+              </button>
+            )}
           </div>
         )}
       </div>
