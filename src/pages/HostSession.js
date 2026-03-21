@@ -20,7 +20,8 @@ export default function HostSession() {
   const [status, setStatus] = useState(state?.session?.status || 'waiting');
   const [showLeaderboard, setShowLeaderboard] = useState(false);
   const [showOverall, setShowOverall] = useState(false);
-  const [closedSlideIdx, setClosedSlideIdx] = useState(0); // slide index the leaderboard is for
+  const [closedSlideIdx, setClosedSlideIdx] = useState(0);
+  const [timerExpired, setTimerExpired] = useState(false); // slide index the leaderboard is for
   const [slideLeaderboard, setSlideLeaderboard] = useState([]); // per-question scores
   const [prevLeaderboard, setPrevLeaderboard] = useState([]); // scores before this question
   const [showQR, setShowQR] = useState(false);
@@ -41,7 +42,10 @@ export default function HostSession() {
     const tick = () => {
       const remaining = Math.max(0, limit - (Date.now() - shownAt) / 1000);
       setTimeLeft(Math.ceil(remaining));
-      if (remaining <= 0) clearInterval(timerRef.current);
+      if (remaining <= 0) {
+        clearInterval(timerRef.current);
+        setTimerExpired(true);
+      }
     };
     tick();
     timerRef.current = setInterval(tick, 250);
@@ -90,6 +94,7 @@ export default function HostSession() {
       const snap = data.slide || data.snapshot || data;
       setCurrentSlide(snap);
       setShowLeaderboard(false);
+      setTimerExpired(false);
       startTimer(snap);
     });
 
@@ -297,6 +302,11 @@ export default function HostSession() {
               )}
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
                 <div className="slide-question" style={{ margin: 0 }}>{slideData.content?.question}</div>
+                {timerExpired && !showLeaderboard && (
+                  <div style={{ textAlign: 'center', padding: '12px 16px', marginBottom: 12, background: 'rgba(255,59,92,0.1)', border: '1px solid var(--red)', borderRadius: 10, fontSize: 14, fontWeight: 700, color: 'var(--red)' }}>
+                    ⏰ Time's up! Click Next → to see results
+                  </div>
+                )}
                 {timeLeft !== null && (
                   <div style={{
                     width: 56, height: 56, borderRadius: '50%', flexShrink: 0,
