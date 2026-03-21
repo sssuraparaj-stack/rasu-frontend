@@ -27,6 +27,7 @@ export default function HostSession() {
   const [showQR, setShowQR] = useState(false);
   const socketRef = useRef(null);
   const timerRef = useRef(null);
+  const lastLbScoresRef = useRef({});
   const [timeLeft, setTimeLeft] = useState(null);
 
   useEffect(() => {
@@ -116,50 +117,16 @@ export default function HostSession() {
     });
 
     // Track last leaderboard scores for per-question diff
-    const lastLbScores = { current: {}, lastSlideIndex: -1, suppressNext: false };
-
     socket.on('session:leaderboard', (data) => {
+      // Just update scores silently — don't show leaderboard automatically
       const lb = data?.entries || data?.leaderboard || [];
-      if (!lb.length) return;
-
-      const slideIndex = data?.slideIndex ?? -1;
-
-      // Ignore duplicate events for same slide
-      if (slideIndex === lastLbScores.lastSlideIndex) {
-        // Still update leaderboard silently
+      if (lb.length) {
         setLeaderboard(lb);
         setParticipants(prev => prev.map(p => {
           const entry = lb.find(e => e.participantId === p.id);
           return entry ? { ...p, score: entry.score } : p;
         }));
-        return;
       }
-      lastLbScores.lastSlideIndex = slideIndex;
-      setClosedSlideIdx(slideIndex + 1); // 1-based for display
-
-      // Calculate per-question points using stored previous scores
-      const perQuestion = lb.map(entry => {
-        const prevScore = lastLbScores.current[entry.participantId] ?? 0;
-        const pointsThisQuestion = Math.max(0, entry.score - prevScore);
-        return { ...entry, pointsThisQuestion };
-      }).sort((a, b) => b.pointsThisQuestion - a.pointsThisQuestion);
-
-      // Store current scores as "previous" for next question
-      const newScores = {};
-      lb.forEach(e => { newScores[e.participantId] = e.score; });
-      lastLbScores.current = newScores;
-
-      setSlideLeaderboard(perQuestion);
-      setLeaderboard(lb);
-      if (!lastLbScores.suppressNext) {
-        setShowLeaderboard(true);
-        setShowOverall(false);
-      }
-      lastLbScores.suppressNext = false;
-      setParticipants(prev => prev.map(p => {
-        const entry = lb.find(e => e.participantId === p.id);
-        return entry ? { ...p, score: entry.score } : p;
-      }));
     });
 
     socket.on('session:ended', (data) => {
@@ -179,6 +146,32 @@ export default function HostSession() {
 
   function startSession() {
     socketRef.current?.emit('start_session', { sessionId });
+  }
+
+  async function fetchLeaderboard() {
+    try {
+      const token = localStorage.getItem('token');
+      const res = await fetch(`${API}/sessions/${sessionId}/leaderboard?limit=50&source=live`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      const data = await res.json();
+      const lb = data.data?.entries || data.data?.items || [];
+      if (lb.length) {
+        const perQuestion = lb.map(entry => {
+          const prevScore = lastLbScoresRef.current[entry.participantId] ?? 0;
+          const pointsThisQuestion = Math.max(0, entry.score - prevScore);
+          return { ...entry, pointsThisQuestion };
+        }).sort((a, b) => b.pointsThisQuestion - a.pointsThisQuestion);
+        const newScores = {};
+        lb.forEach(e => { newScores[e.participantId] = e.score; });
+        lastLbScoresRef.current = newScores;
+        setSlideLeaderboard(perQuestion);
+        setLeaderboard(lb);
+        setClosedSlideIdx((currentSlide?.slideIndex ?? 0) + 1);
+      }
+    } catch {}
+    setShowLeaderboard(true);
+    setShowOverall(false);
   }
 
   function changeSlide(direction) {
@@ -525,10 +518,7 @@ export default function HostSession() {
               // Last slide — show "See Results" when timer expired, otherwise disabled Next
               timerExpired && !showLeaderboard ? (
                 <button className="btn btn-primary btn-sm" style={{ minWidth: 100 }}
-                  onClick={() => {
-                    setShowLeaderboard(true);
-                    setShowOverall(false);
-                  }}>
+                  onClick={() => fetchLeaderboard()}>
                   See Results →
                 </button>
               ) : (
