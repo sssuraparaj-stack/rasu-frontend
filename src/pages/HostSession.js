@@ -426,31 +426,34 @@ export default function HostSession() {
             <div>
               {!showOverall ? (
                 <>
-                  {/* Per-question winner */}
-                  <div style={{ fontFamily: 'var(--font-head)', fontSize: 18, fontWeight: 800, marginBottom: 4, color: 'var(--accent)' }}>
-                    ⚡ Question {closedSlideIdx} Results
+                  {/* Per-question winner - exciting display */}
+                  <div style={{ textAlign: 'center', marginBottom: 12 }}>
+                    <div style={{ fontSize: 32, marginBottom: 4 }}>⚡</div>
+                    <div style={{ fontFamily: 'var(--font-head)', fontSize: 16, fontWeight: 800, color: 'var(--accent)' }}>
+                      Question {closedSlideIdx} Results
+                    </div>
+                    <div style={{ fontSize: 11, color: 'var(--muted)', marginTop: 2 }}>Points earned this question</div>
                   </div>
-                  <div style={{ fontSize: 12, color: 'var(--muted)', marginBottom: 16 }}>Points earned this question</div>
                   {slideLeaderboard.slice(0, 5).map((p, i) => (
                     <div key={p.participantId || i} style={{
                       display: 'flex', alignItems: 'center', gap: 10, marginBottom: 8,
-                      padding: '10px 14px', borderRadius: 10,
-                      background: i === 0 ? 'rgba(250,204,21,0.08)' : 'rgba(255,255,255,0.03)',
-                      border: `1px solid ${i === 0 ? 'rgba(250,204,21,0.25)' : 'var(--border)'}`,
+                      padding: '12px 14px', borderRadius: 12,
+                      background: i === 0 ? 'rgba(250,204,21,0.1)' : 'rgba(255,255,255,0.03)',
+                      border: `1px solid ${i === 0 ? 'rgba(250,204,21,0.3)' : 'var(--border)'}`,
+                      transform: i === 0 ? 'scale(1.02)' : 'scale(1)',
                     }}>
-                      <span style={{ fontSize: 18, width: 28 }}>
+                      <span style={{ fontSize: i === 0 ? 24 : 18, width: 32, textAlign: 'center' }}>
                         {i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : `#${i+1}`}
                       </span>
-                      <span style={{ flex: 1, fontWeight: 700, fontSize: 14 }}>{p.nickname}</span>
-                      <span style={{ fontFamily: 'var(--font-head)', fontWeight: 900, color: p.pointsThisQuestion > 0 ? 'var(--green)' : 'var(--muted)', fontSize: 16 }}>
-                        {p.pointsThisQuestion > 0 ? `+${p.pointsThisQuestion}` : '0'}
-                      </span>
+                      <span style={{ flex: 1, fontWeight: 700, fontSize: i === 0 ? 15 : 13 }}>{p.nickname}</span>
+                      <div style={{ textAlign: 'right' }}>
+                        <div style={{ fontFamily: 'var(--font-head)', fontWeight: 900, fontSize: i === 0 ? 20 : 16, color: p.pointsThisQuestion > 0 ? 'var(--green)' : 'var(--muted)' }}>
+                          {p.pointsThisQuestion > 0 ? `+${p.pointsThisQuestion}` : '0'}
+                        </div>
+                        <div style={{ fontSize: 10, color: 'var(--muted)' }}>total: {p.score}</div>
+                      </div>
                     </div>
                   ))}
-                  <button className="btn btn-ghost btn-sm" style={{ width: '100%', marginTop: 12 }}
-                    onClick={() => setShowOverall(true)}>
-                    📊 Show Overall Rankings →
-                  </button>
                 </>
               ) : (
                 <>
@@ -525,16 +528,9 @@ export default function HostSession() {
 
             {slideIdx >= totalSlides - 1 ? (
               // Last slide — show "See Results" when timer expired, otherwise disabled Next
-              timerExpired && !showLeaderboard ? (
-                <button className="btn btn-primary btn-sm" style={{ minWidth: 100 }}
-                  onClick={() => fetchLeaderboard()}>
-                  See Results →
-                </button>
-              ) : (
-                <button className="btn btn-ghost btn-sm" disabled style={{ opacity: 0.3, cursor: 'not-allowed' }}>
+              <button className="btn btn-ghost btn-sm" disabled style={{ opacity: 0.3, cursor: 'not-allowed' }}>
                   Next →
                 </button>
-              )
             ) : (
               // Two-step Next: first shows leaderboard, second advances slide
               showLeaderboard ? (
