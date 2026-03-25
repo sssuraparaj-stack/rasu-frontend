@@ -20,9 +20,10 @@ export default function HostSession() {
   const [status, setStatus] = useState(state?.session?.status || 'waiting');
   const [showLeaderboard, setShowLeaderboard] = useState(false);
   const [timerExpired, setTimerExpired] = useState(false);
+  const [timeLeft, setTimeLeft] = useState(null);
   const [showOverall, setShowOverall] = useState(false);
   const [closedSlideIdx, setClosedSlideIdx] = useState(0);
-  const [timerExpired, setTimerExpired] = useState(false); // slide index the leaderboard is for
+   // slide index the leaderboard is for
   const [slideLeaderboard, setSlideLeaderboard] = useState([]); // per-question scores
   const [prevLeaderboard, setPrevLeaderboard] = useState([]); // scores before this question
   const [showQR, setShowQR] = useState(false);
@@ -43,8 +44,7 @@ export default function HostSession() {
     timerRef.current = setInterval(tick, 250);
   }
 const lastLbScoresRef = useRef({});
-  const [timeLeft, setTimeLeft] = useState(null);
-
+  
   useEffect(() => {
     loadSession().then(sess => connectSocket(sess));
     return () => { socketRef.current?.disconnect(); if (timerRef.current) clearInterval(timerRef.current); };
