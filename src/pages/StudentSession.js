@@ -494,6 +494,14 @@ export default function StudentSession() {
               </div>
             )}
 
+            {submitted && result && (
+              <div style={{ textAlign: 'center', marginBottom: 8, padding: '8px 16px', background: 'rgba(255,255,255,0.04)', borderRadius: 10, fontSize: 13, color: 'var(--muted)' }}>
+                This question: <strong style={{ color: result.points > 0 ? 'var(--green)' : 'var(--red)', fontFamily: 'var(--font-head)', fontSize: 16 }}>
+                  {result.points > 0 ? `+${result.points}` : '0'} pts
+                </strong>
+                {' '}· Total: <strong style={{ color: 'var(--accent)', fontFamily: 'var(--font-head)', fontSize: 16 }}>{score}</strong>
+              </div>
+            )}
             {submitted && result && result.isCorrect === true && (
               <div className="feedback-banner feedback-correct">
                 <div className="feedback-icon">✓</div>

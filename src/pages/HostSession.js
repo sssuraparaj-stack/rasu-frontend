@@ -19,32 +19,17 @@ export default function HostSession() {
   const [leaderboard, setLeaderboard] = useState([]);
   const [status, setStatus] = useState(state?.session?.status || 'waiting');
   const [showLeaderboard, setShowLeaderboard] = useState(false);
-  const [timerExpired, setTimerExpired] = useState(false);
-  const [timeLeft, setTimeLeft] = useState(null);
   const [showOverall, setShowOverall] = useState(false);
   const [closedSlideIdx, setClosedSlideIdx] = useState(0);
-   // slide index the leaderboard is for
+  const [timerExpired, setTimerExpired] = useState(false); // slide index the leaderboard is for
   const [slideLeaderboard, setSlideLeaderboard] = useState([]); // per-question scores
   const [prevLeaderboard, setPrevLeaderboard] = useState([]); // scores before this question
   const [showQR, setShowQR] = useState(false);
   const socketRef = useRef(null);
   const timerRef = useRef(null);
-  function startTimer(slide) {
-    if (timerRef.current) clearInterval(timerRef.current);
-    const limit = slide?.timeLimit;
-    if (!limit) { setTimeLeft(null); return; }
-    const shownAt = slide?.shownAt || Date.now();
-    setTimerExpired(false);
-    const tick = () => {
-      const remaining = Math.max(0, limit - (Date.now() - shownAt) / 1000);
-      setTimeLeft(Math.ceil(remaining));
-      if (remaining <= 0) { clearInterval(timerRef.current); setTimerExpired(true); }
-    };
-    tick();
-    timerRef.current = setInterval(tick, 250);
-  }
-const lastLbScoresRef = useRef({});
-  
+  const lastLbScoresRef = useRef({});
+  const [timeLeft, setTimeLeft] = useState(null);
+
   useEffect(() => {
     loadSession().then(sess => connectSocket(sess));
     return () => { socketRef.current?.disconnect(); if (timerRef.current) clearInterval(timerRef.current); };
@@ -113,7 +98,7 @@ const lastLbScoresRef = useRef({});
       setShowOverall(false);
       setTimerExpired(false);
       startTimer(snap);
-     });
+    });
 
     socket.on('session:participant_joined', (data) => {
       setParticipants(prev => {
@@ -194,8 +179,6 @@ const lastLbScoresRef = useRef({});
     setShowLeaderboard(false);
     setShowOverall(false);
     setTimerExpired(false);
-    setShowLeaderboard(timerExpired && !showLeaderboard);
-    if (timerExpired && !showLeaderboard) return;
     socketRef.current?.emit('change_slide', { sessionId, direction });
   }
 
@@ -235,14 +218,20 @@ const lastLbScoresRef = useRef({});
               </button>
             )}
             {status === 'active' && (
-              showLeaderboard && slideIdx >= totalSlides - 1 ? (
-                <button className="btn btn-primary" onClick={endSession}
-                  style={{ background: 'linear-gradient(135deg, #7c3aed, #a78bfa)', borderColor: 'transparent' }}>
-                  🏁 End & Show Final
+              <>
+                <button className="btn btn-ghost btn-sm" style={{ width: 'auto', color: 'var(--accent)', borderColor: 'rgba(0,229,255,0.3)' }}
+                  onClick={() => { setShowLeaderboard(true); setShowOverall(true); }}>
+                  📊 Consolidation
                 </button>
-              ) : (
-                <button className="btn btn-danger" onClick={endSession}>■ End</button>
-              )
+                {showLeaderboard && slideIdx >= totalSlides - 1 ? (
+                  <button className="btn btn-primary" onClick={endSession}
+                    style={{ background: 'linear-gradient(135deg, #7c3aed, #a78bfa)', borderColor: 'transparent' }}>
+                    🏁 End & Show Final
+                  </button>
+                ) : (
+                  <button className="btn btn-danger" onClick={endSession}>■ End</button>
+                )}
+              </>
             )}
           </div>
         </div>
@@ -560,9 +549,8 @@ const lastLbScoresRef = useRef({});
                 </button>
               ) : (
                 <button className="btn btn-ghost btn-sm"
-                 onClick={() => changeSlide('next')}
-            >
-              {showLeaderboard ? 'Next Question →' : timerExpired ? 'See Results →' : 'Next →'}
+                  onClick={() => changeSlide('next')}>
+                  Next →
                 </button>
               )
             )}
