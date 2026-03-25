@@ -28,7 +28,21 @@ export default function HostSession() {
   const [showQR, setShowQR] = useState(false);
   const socketRef = useRef(null);
   const timerRef = useRef(null);
-  const lastLbScoresRef = useRef({});
+  function startTimer(slide) {
+    if (timerRef.current) clearInterval(timerRef.current);
+    const limit = slide?.timeLimit;
+    if (!limit) { setTimeLeft(null); return; }
+    const shownAt = slide?.shownAt || Date.now();
+    setTimerExpired(false);
+    const tick = () => {
+      const remaining = Math.max(0, limit - (Date.now() - shownAt) / 1000);
+      setTimeLeft(Math.ceil(remaining));
+      if (remaining <= 0) { clearInterval(timerRef.current); setTimerExpired(true); }
+    };
+    tick();
+    timerRef.current = setInterval(tick, 250);
+  }
+const lastLbScoresRef = useRef({});
   const [timeLeft, setTimeLeft] = useState(null);
 
   useEffect(() => {
@@ -99,7 +113,7 @@ export default function HostSession() {
       setShowOverall(false);
       setTimerExpired(false);
       startTimer(snap);
-    });
+     });
 
     socket.on('session:participant_joined', (data) => {
       setParticipants(prev => {
